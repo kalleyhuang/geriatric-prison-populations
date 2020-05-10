@@ -22,7 +22,7 @@ population <-
   select(value) %>% 
   rename(original_age = value) %>% 
   mutate(current_age = original_age, years_incarcerated = 0, odds_of_removal = 0.01)
-  #mutate(eligible_for_parole = FALSE)
+  # mutate(eligible_for_parole = FALSE)
 
 overall <-
   tibble(year = 1, total_population = nrow(population), 
@@ -47,14 +47,12 @@ one_year_population <- function(data) {
   # NOT TOTALLY FUNCTIONAL!!!
   # checks if eligible for parole
   # if eligibility has been checked and odds of removal has increased, does not increase again
-  #if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
-    #data$odds_of_removal <- data$odds_of_removal + 0.1
-    #data$eligible_for_parole <- TRUE
-  #}
+  # if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
+  #   data$odds_of_removal <- data$odds_of_removal + 0.1
+  #   data$eligible_for_parole <- TRUE
+  # }
   
   # randomly removes 1 percent
-  # odds of death should increase with age but 0.01*nrow(data) is how many observations removed
-  # instead should remove based on odds of removal
   data <- data[-sample(1:nrow(data), 0.01*nrow(data)),]
   
   # adds 1000 more
@@ -141,4 +139,105 @@ bar_race <- test_overall %>%
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
   pivot_wider(names_from = "year", values_from = "count")
+```
+
+EVERYTHING AFTER THIS LINE IS ME TRYING TO FIGURE OUT HOW TO MAKE ODDS OF DEATH INCREASE WITH AGE
+Right now, it filters the entire population by age group and randomly removes (odds)*nrow(age_group) observations. Theoretically, the greater the age, the greater the number of observations to be removed. We can't use this function from the start because the number of observations to be removed if older than 40 is too large for that age group to accumulate, so it never allows the population to have observations with ages older than 40. Conversely, if we use this function once the system has equilibrated, the age groups don't seem to be significantly affected. Ideally, each observation would have different odds of removal--hence the variable--but not sure how to make removal actually dependent on the variable, rather than a hard coded number of observations to be removed.
+
+```{r test_equilibrium_function}
+one_year_equilibrium <- function(data) {
+  # age & years incarcerated increases by 1
+  data$current_age <- data$current_age + 1
+  data$years_incarcerated <- data$years_incarcerated + 1
+  
+  # randomly removes based on age
+  less_than_18 <- filter(data, current_age <= 18)
+  less_than_18 <- less_than_18[-sample(1:nrow(less_than_18), 0.0007*nrow(less_than_18)),]
+  
+  `19_to_29` <- filter(data, current_age >= 19 & current_age <= 29)
+  `19_to_29` <- `19_to_29`[-sample(1:nrow(`19_to_29`), 0.0013*nrow(`19_to_29`)),]
+  
+  `30_to_39` <- filter(data, current_age >= 30 & current_age <= 39)
+  `30_to_39` <- `30_to_39`[-sample(1:nrow(`30_to_39`), 0.0019*nrow(`30_to_39`)),]
+  
+  `40_to_49` <- filter(data, current_age >= 40 & current_age <= 49)
+  `40_to_49` <- `40_to_49`[-sample(1:nrow(`40_to_49`), 0.0040*nrow(`40_to_49`)),]
+  
+  `50_to_59` <- filter(data, current_age >= 50 & current_age <= 59)
+  `50_to_59` <- `50_to_59`[-sample(1:nrow(`50_to_59`), 0.0088*nrow(`50_to_59`)),]
+  
+  `60_to_69` <- filter(data, current_age >= 60 & current_age <= 69)
+  `60_to_69` <- `60_to_69`[-sample(1:nrow(`60_to_69`), 0.0178*nrow(`60_to_69`)),]
+  
+  `70_to_79` <- filter(data, current_age >= 70 & current_age <= 79)
+  `70_to_79` <- `70_to_79`[-sample(1:nrow(`70_to_79`), 0.0439*nrow(`70_to_79`)),]
+  
+  `80_to_89` <- filter(data, current_age >= 80 & current_age <= 89)
+  `80_to_89` <- `80_to_89`[-sample(1:nrow(`80_to_89`), 0.1345*nrow(`80_to_89`)),]
+  
+  over_90 <- filter(data, current_age >= 90)
+  over_90 <- over_90[-sample(1:nrow(over_90), 0.1345*nrow(over_90)),]
+  
+  data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
+                                `60_to_69`,`70_to_79`, `80_to_89`, over_90))
+  
+  # adds 1000 more
+  incoming <- 
+    rnorm(n = 1000, mean = 26, sd = 3) %>% 
+    enframe() %>% 
+    select(value) %>% 
+    rename(original_age = value) %>% 
+    mutate(current_age = original_age, years_incarcerated = 0, odds_of_removal = 0.01)
+    #mutate(eligible_for_parole = FALSE)
+  data <- rbind(data, incoming)
+  
+  # removes any observations with age greater than 100
+  data <- data %>% 
+    filter(current_age < 100)
+}
+```
+
+```{r test_equilibrium}
+test_population_e <- test_population
+test_overall_e <- test_overall
+for (i in 1:100) {
+  test_population_e <- one_year_population(test_population_e)
+  test_overall_e <- one_year_overall(test_overall_e, test_population_e)
+}
+```
+
+```{r test_equilibrium_graphs}
+ggplot(data = test_overall_e, mapping = aes(x = year, y = median_age)) +
+  geom_line() +
+  labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
+
+test_overall_e %>% 
+  mutate(under_30 = `19_to_29` + less_than_18, 
+         over_60 = `60_to_69` + `70_to_79` + `80_to_89` + over_90) %>% 
+  select(year, under_30, over_60) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = under_30, color = "under_30")) +
+  geom_line(mapping = aes(y = over_60, color = "over_60")) +
+  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
+
+test_overall_e_long <- test_overall_e %>% 
+  select(year, less_than_18:over_90) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
+  filter(year == "1" | year == "21" | year == "41" | year == "61" | year == "81" | 
+           year == "101" | year == "121" | year == "141" | year == "161" | year == "181" |
+           year == "201")
+
+ggplot(data = test_overall_e_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101", "121", "141", "161", "181", 
+                              "201")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("less_than_18", "19_to_29", "30_to_39", "40_to_49", "50_to_59",
+                                 "60_to_69", "70_to_79", "80_to_89", "over_90"),
+                      labels = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70-79", "80-89", "90 +"))
 ```
