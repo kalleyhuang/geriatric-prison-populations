@@ -147,7 +147,7 @@ ggplot(data = test_overall_long, mapping = aes(x = year, y = count, fill = age_g
   scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101")) +
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70-79", "80-89", "90 +"))
+                                 "70 - 79", "80 - 89", "90 +"))
 ```
 
 ```{r bar_race}
@@ -156,4 +156,47 @@ bar_race <- test_overall %>%
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
   pivot_wider(names_from = "year", values_from = "count")
+```
+
+```{r test_equilibrium}
+test_population_e <- test_population
+test_overall_e <- test_overall
+for (i in 1:100) {
+  test_population_e <- one_year_population(test_population_e)
+  test_overall_e <- one_year_overall(test_overall_e, test_population_e)
+}
+```
+
+```{r test_equilibrium_graphs}
+ggplot(data = test_overall_e, mapping = aes(x = year, y = median_age)) +
+  geom_line() +
+  labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
+
+test_overall_e %>% 
+  mutate(under_30 = `19 - 29` + `< 18`, 
+         over_60 = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  select(year, under_30, over_60) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = under_30, color = "under_30")) +
+  geom_line(mapping = aes(y = over_60, color = "over_60")) +
+  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
+
+test_overall_e_long <- test_overall_e %>% 
+  select(year, `< 18`:`90 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
+  filter(year == "1" | year == "21" | year == "41" | year == "61" | year == "81" | 
+           year == "101" | year == "121" | year == "141" | year == "161" | year == "181" |
+           year == "201")
+
+ggplot(data = test_overall_e_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101", "121", "141", "161", "181", 
+                              "201")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70 - 79", "80 - 89", "90 +"))
 ```
