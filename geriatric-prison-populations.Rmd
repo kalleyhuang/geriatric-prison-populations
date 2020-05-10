@@ -53,14 +53,6 @@ one_year_population <- function(data) {
   data$current_age <- data$current_age + 1
   data$years_incarcerated <- data$years_incarcerated + 1
   
-  # NOT TOTALLY FUNCTIONAL!!!
-  # checks if eligible for parole
-  # if eligibility has been checked and odds of removal has increased, does not increase again
-  # if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
-  #   data$odds_of_removal <- data$odds_of_removal + 0.1
-  #   data$eligible_for_parole <- TRUE
-  # }
-  
   # randomly removes 1 percent
   data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
                        prob = population$odds_of_removal),]
@@ -199,4 +191,16 @@ ggplot(data = test_overall_e_long, mapping = aes(x = year, y = count, fill = age
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +"))
+```
+
+```{r test_parole}
+# NOT TOTALLY FUNCTIONAL!!!
+# checks if eligible for parole
+# if eligibility has been checked and odds of removal has increased, does not increase again
+parole <- function(data) {
+  if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
+    data$odds_of_removal <- data$odds_of_removal + 0.1
+    data$eligible_for_parole <- TRUE
+  }
+}
 ```
