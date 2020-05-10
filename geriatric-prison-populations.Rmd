@@ -53,6 +53,17 @@ one_year_population <- function(data) {
   data$current_age <- data$current_age + 1
   data$years_incarcerated <- data$years_incarcerated + 1
   
+  # updates odds of removal
+  data$odds_of_removal <- case_when(data$current_age < 19 ~ 0.007,
+                                    data$current_age >= 19 & data$current_age < 30 ~ 0.0013,
+                                    data$current_age >= 30 & data$current_age < 40 ~ 0.0019,
+                                    data$current_age >= 40 & data$current_age < 50 ~ 0.0040,
+                                    data$current_age >= 50 & data$current_age < 60 ~ 0.0088,
+                                    data$current_age >= 60 & data$current_age < 70 ~ 0.0178,
+                                    data$current_age >= 70 & data$current_age < 80 ~ 0.0439,
+                                    data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
+                                    data$current_age >= 90 ~ 0.1345)
+  
   # randomly removes 1 percent
   data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
                        prob = population$odds_of_removal),]
@@ -199,14 +210,67 @@ bar_race_e <- test_overall_e %>%
   pivot_wider(names_from = "year", values_from = "count")
 ```
 
-```{r test_parole}
-# NOT TOTALLY FUNCTIONAL!!!
-# checks if eligible for parole
-# if eligibility has been checked and odds of removal has increased, does not increase again
-parole <- function(data) {
+```{r parole_functions}
+one_year_parole <- function(data) {
+  # age & years incarcerated increases by 1
+  data$current_age <- data$current_age + 1
+  data$years_incarcerated <- data$years_incarcerated + 1
+  
+  # updates odds of removal
+  data$odds_of_removal <- case_when(data$current_age < 19 ~ 0.007,
+                                    data$current_age >= 19 & data$current_age < 30 ~ 0.0013,
+                                    data$current_age >= 30 & data$current_age < 40 ~ 0.0019,
+                                    data$current_age >= 40 & data$current_age < 50 ~ 0.0040,
+                                    data$current_age >= 50 & data$current_age < 60 ~ 0.0088,
+                                    data$current_age >= 60 & data$current_age < 70 ~ 0.0178,
+                                    data$current_age >= 70 & data$current_age < 80 ~ 0.0439,
+                                    data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
+                                    data$current_age >= 90 ~ 0.1345)
+  
+  # NOT TOTALLY FUNCTIONAL!!!
+  # if incarcerated for more than 20 years, odds of removal increases 10 percent
+  # checks if eligible for parole
+  # if eligibility has been checked and odds of removal has increased, does not increase again
   if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
     data$odds_of_removal <- data$odds_of_removal + 0.1
     data$eligible_for_parole <- TRUE
   }
+  
+  # randomly removes 1 percent
+  data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
+                       prob = population$odds_of_removal),]
+  
+  # adds 1000 more
+  incoming <- 
+    rnorm(n = 1000, mean = 26, sd = 3) %>% 
+    enframe() %>% 
+    select(value) %>% 
+    rename(original_age = value) %>% 
+    mutate(current_age = original_age, years_incarcerated = 0, eligible_for_parole = FALSE) %>% 
+    mutate(odds_of_removal = case_when(current_age < 19 ~ 0.007,
+                                       current_age >= 19 & current_age < 30 ~ 0.0013,
+                                       current_age >= 30 & current_age < 40 ~ 0.0019,
+                                       current_age >= 40 & current_age < 50 ~ 0.0040,
+                                       current_age >= 50 & current_age < 60 ~ 0.0088,
+                                       current_age >= 60 & current_age < 70 ~ 0.0178,
+                                       current_age >= 70 & current_age < 80 ~ 0.0439,
+                                       current_age >= 80 & current_age < 90 ~ 0.1345,
+                                       current_age >= 90 ~ 0.1345))
+  data <- rbind(data, incoming)
+  
+  # removes any observations with age greater than 100
+  data <- data %>% 
+    filter(current_age < 100)
+}
+```
+
+```{r test_parole}
+parole_population <- population %>% 
+  mutate(eligible_for_parole = FALSE)
+parole_overall <- overall
+
+for (i in 1:100) {
+  parole_population <- one_year_parole(parole_population)
+  parole_overall <- one_year_overall(parole_overall, parole_population)
 }
 ```
