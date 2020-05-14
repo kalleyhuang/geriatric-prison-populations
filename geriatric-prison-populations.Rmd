@@ -64,14 +64,20 @@ one_year_population <- function(data) {
                                     data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
                                     data$current_age >= 90 ~ 0.1345)
   
-  # NOT TOTALLY FUNCTIONAL??? may have to change to sample_n()
-  # also maybe: sample(x = c(AGE GROUPS), size = 0.01*nrow(population), replace = TRUE,
-  #                   prob = c(ASSOCIATED MORTALITY RATES, ADJUSTED TO ADD TO 1.0))
-  # this would generate a vector of age groups to remove & we would have to somehow randomly 
-  # select x number of people associated with randomly selected age groups to remove
+  # INCOMPLETE?
   # randomly removes 1 percent with probability weights based on odds of removal
   data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
                        prob = population$odds_of_removal),]
+  
+  # this would generate a vector of age groups to remove & we would have to somehow randomly 
+  # select x number of people associated with randomly selected age groups to remove
+  # sample(x = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79",
+  #              "80 - 89", "90 +"), size = 0.01*nrow(population), replace = TRUE,
+  #        prob = c(0.007, 0.0013, 0.0019, 0.0040, 0.0088, 0.0178, 0.0439, 0.1345, 0.1345))
+
+  # this would sample 1 percent of population, which we could then remove
+  # may not be particularly different from original sampling
+  # sample_frac(population, 0.01, weight = population$odds_of_removal)
   
   # adds 1000 more
   incoming <- 
