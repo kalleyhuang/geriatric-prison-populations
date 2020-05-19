@@ -64,20 +64,51 @@ one_year_population <- function(data) {
                                     data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
                                     data$current_age >= 90 ~ 0.1345)
   
-  # INCOMPLETE?
+  # POSSIBILITIES FOR RANDOM REMOVALS WITH WEIGHTED PROBABILITIES
   # randomly removes 1 percent with probability weights based on odds of removal
-  data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
-                       prob = population$odds_of_removal),]
+  # data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
+  #                      prob = population$odds_of_removal),]
   
-  # this would generate a vector of age groups to remove & we would have to somehow randomly 
+  # generates a vector of age groups to remove & we would have to somehow randomly 
   # select x number of people associated with randomly selected age groups to remove
   # sample(x = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79",
   #              "80 - 89", "90 +"), size = 0.01*nrow(population), replace = TRUE,
   #        prob = c(0.007, 0.0013, 0.0019, 0.0040, 0.0088, 0.0178, 0.0439, 0.1345, 0.1345))
 
-  # this would sample 1 percent of population, which we could then remove
-  # may not be particularly different from original sampling
-  # sample_frac(population, 0.01, weight = population$odds_of_removal)
+  # samples 1 percent of population to then remove
+  # may not be particularly different from original sampling (hard coded # vs %)
+  # sample_frac(data, 0.01, weight = population$odds_of_removal)
+  
+  # creates age group cohorts & randomly removes fraction based on cohort
+  less_than_18 <- filter(data, current_age < 19)
+  less_than_18 <- sample_frac(less_than_18, (1 - 0.0007))
+  
+  `19_to_29` <- filter(data, current_age >= 19 & current_age < 30)
+  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0013))
+  
+  `30_to_39` <- filter(data, current_age >= 30 & current_age < 40)
+  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0019))
+  
+  `40_to_49` <- filter(data, current_age >= 40 & current_age < 50)
+  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0040))
+  
+  `50_to_59` <- filter(data, current_age >= 50 & current_age < 60)
+  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0088))
+  
+  `60_to_69` <- filter(data, current_age >= 60 & current_age < 70)
+  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0178))
+  
+  `70_to_79` <- filter(data, current_age >= 70 & current_age < 80)
+  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0439))
+  
+  `80_to_89` <- filter(data, current_age >= 80 & current_age < 90)
+  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.1345))
+  
+  over_90 <- filter(data, current_age >= 90)
+  over_90 <- sample_frac(over_90, (1 - 0.1345))
+  
+  data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
+                                `60_to_69`,`70_to_79`, `80_to_89`, over_90))
   
   # adds 1000 more
   incoming <- 
