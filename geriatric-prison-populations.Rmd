@@ -170,13 +170,13 @@ ggplot(data = test_overall, mapping = aes(x = year, y = median_age)) +
   labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
 
 test_overall %>% 
-  mutate(under_30 = `19 - 29` + `< 18`, 
-         over_60 = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
-  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
 
@@ -205,24 +205,25 @@ bar_race <- test_overall %>%
 ```{r actual}
 actual <- read.csv("populations.csv")
 actual %>% 
-  mutate(Under30 = AgeUnder20 + Age20to29, 
-         Over60 = Age60to69 + Age70to79 + Age80to89 + Age90over) %>% 
-  select(year, Under30, Over60) %>% 
+  mutate(Under30 = (AgeUnder20 + Age20to29) / PrisonPopulation * 100, 
+         Over60 = (Age60to69 + Age70to79 + Age80to89 + Age90over) / PrisonPopulation * 100) %>% 
+  select(year, PrisonPopulation, Under30, Over60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = Under30, color = "Under30")) +
   geom_line(mapping = aes(y = Over60, color = "Over60")) +
-  labs(title = "Actual Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Actual Percent Under 30 & Over 60 Over Time", x = "Year", y = "Percent") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
 
 test_overall %>% 
-  mutate(under_30 = `19 - 29` + `< 18`, 
-         over_60 = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`, year = as.character(year)) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100, 
+         year = as.character(year)) %>% 
   select(year, under_30, over_60) %>%
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
-  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Percent") +
   scale_x_discrete(limits = c("19", "24", "29", "34", "39", "44", "49", "54", "59")) +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
