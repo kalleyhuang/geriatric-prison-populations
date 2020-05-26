@@ -81,31 +81,31 @@ one_year_population <- function(data) {
   
   # creates age group cohorts & randomly removes fraction based on cohort
   less_than_18 <- filter(data, current_age < 19)
-  less_than_18 <- sample_frac(less_than_18, (1 - 0.0007))
+  less_than_18 <- sample_frac(less_than_18, (1 - 0.0055))
   
   `19_to_29` <- filter(data, current_age >= 19 & current_age < 30)
-  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0013))
+  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0022))
   
   `30_to_39` <- filter(data, current_age >= 30 & current_age < 40)
-  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0019))
+  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0023))
   
   `40_to_49` <- filter(data, current_age >= 40 & current_age < 50)
-  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0040))
+  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0025))
   
   `50_to_59` <- filter(data, current_age >= 50 & current_age < 60)
-  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0088))
+  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0060))
   
   `60_to_69` <- filter(data, current_age >= 60 & current_age < 70)
-  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0178))
+  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0162))
   
   `70_to_79` <- filter(data, current_age >= 70 & current_age < 80)
-  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0439))
+  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0424))
   
   `80_to_89` <- filter(data, current_age >= 80 & current_age < 90)
-  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.1345))
+  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.0519))
   
   over_90 <- filter(data, current_age >= 90)
-  over_90 <- sample_frac(over_90, (1 - 0.1345))
+  over_90 <- sample_frac(over_90, (1 - 0.1250))
   
   data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
                                 `60_to_69`,`70_to_79`, `80_to_89`, over_90))
@@ -183,8 +183,7 @@ test_overall %>%
 test_overall_long <- test_overall %>% 
   select(year, `< 18`:`90 +`) %>% 
   mutate(year = as.character(year)) %>% 
-  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
-  filter(year == "1" | year == "21" | year == "41" | year == "61" | year == "81" | year == "101")
+  pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = test_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
   geom_bar(position = "stack", stat = "identity") +
@@ -201,6 +200,38 @@ bar_race <- test_overall %>%
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
   pivot_wider(names_from = "year", values_from = "count")
+```
+
+```{r actual}
+actual <- read.csv("populations.csv")
+actual %>% 
+  mutate(Under30 = AgeUnder20 + Age20to29, 
+         Over60 = Age60to69 + Age70to79 + Age80to89 + Age90over) %>% 
+  select(year, Under30, Over60) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = Under30, color = "Under30")) +
+  geom_line(mapping = aes(y = Over60, color = "Over60")) +
+  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
+
+actual_long <- actual %>% 
+  select(year, AgeUnder20:Age90over) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count")
+
+ggplot(data = actual_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("1979", "1984", "1989", "1994", "1999", "2004", "2009", "2014", 
+                              "2020")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("AgeUnder20", "Age20to29", "Age30to39", "Age49to49",
+                                 "Age50to59", "Age60to69", "Age70to79", "Age80to89", 
+                                 "Age90over"),
+                      labels = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70 - 79", "80 - 89", "90 +"))
+
 ```
 
 ```{r test_equilibrium}
