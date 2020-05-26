@@ -211,7 +211,7 @@ actual %>%
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = Under30, color = "Under30")) +
   geom_line(mapping = aes(y = Over60, color = "Over60")) +
-  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Actual Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
 
@@ -222,14 +222,22 @@ actual_long <- actual %>%
 
 ggplot(data = actual_long, mapping = aes(x = year, y = count, fill = age_group)) +
   geom_bar(position = "stack", stat = "identity") +
-  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  labs(title = "Actual Age Groups Over Time", x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1979", "1984", "1989", "1994", "1999", "2004", "2009", "2014", 
                               "2020")) +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("AgeUnder20", "Age20to29", "Age30to39", "Age49to49",
-                                 "Age50to59", "Age60to69", "Age70to79", "Age80to89", 
+                      breaks = c("AgeUnder20", "Age20to29", "Age30to39", "Age40to49", 
+                                 "Age50to59", "Age60to69", "Age70to79", "Age80to89",
                                  "Age90over"),
-                      labels = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                      labels = c("< 20", "20 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70 - 79", "80 - 89", "90 +"))
+
+ggplot(data = test_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("19", "24", "29", "34", "39", "44", "49", "54", "59")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +"))
 
 ```
