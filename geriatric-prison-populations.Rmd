@@ -21,17 +21,7 @@ population <-
   enframe() %>% 
   select(value) %>% 
   rename(original_age = value) %>% 
-  mutate(current_age = original_age, years_incarcerated = 0) %>% 
-  mutate(odds_of_removal = case_when(current_age < 19 ~ 0.007,
-                                     current_age >= 19 & current_age < 30 ~ 0.0013,
-                                     current_age >= 30 & current_age < 40 ~ 0.0019,
-                                     current_age >= 40 & current_age < 50 ~ 0.0040,
-                                     current_age >= 50 & current_age < 60 ~ 0.0088,
-                                     current_age >= 60 & current_age < 70 ~ 0.0178,
-                                     current_age >= 70 & current_age < 80 ~ 0.0439,
-                                     current_age >= 80 & current_age < 90 ~ 0.1345,
-                                     current_age >= 90 ~ 0.1345))
-  # mutate(eligible_for_parole = FALSE)
+  mutate(current_age = original_age, years_incarcerated = 0)
 
 overall <-
   tibble(year = 1, total_population = nrow(population), 
@@ -52,32 +42,6 @@ one_year_population <- function(data) {
   # age & years incarcerated increases by 1
   data$current_age <- data$current_age + 1
   data$years_incarcerated <- data$years_incarcerated + 1
-  
-  # updates odds of removal
-  data$odds_of_removal <- case_when(data$current_age < 19 ~ 0.007,
-                                    data$current_age >= 19 & data$current_age < 30 ~ 0.0013,
-                                    data$current_age >= 30 & data$current_age < 40 ~ 0.0019,
-                                    data$current_age >= 40 & data$current_age < 50 ~ 0.0040,
-                                    data$current_age >= 50 & data$current_age < 60 ~ 0.0088,
-                                    data$current_age >= 60 & data$current_age < 70 ~ 0.0178,
-                                    data$current_age >= 70 & data$current_age < 80 ~ 0.0439,
-                                    data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
-                                    data$current_age >= 90 ~ 0.1345)
-  
-  # POSSIBILITIES FOR RANDOM REMOVALS WITH WEIGHTED PROBABILITIES
-  # randomly removes 1 percent with probability weights based on odds of removal
-  # data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
-  #                      prob = population$odds_of_removal),]
-  
-  # generates a vector of age groups to remove & we would have to somehow randomly 
-  # select x number of people associated with randomly selected age groups to remove
-  # sample(x = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79",
-  #              "80 - 89", "90 +"), size = 0.01*nrow(population), replace = TRUE,
-  #        prob = c(0.007, 0.0013, 0.0019, 0.0040, 0.0088, 0.0178, 0.0439, 0.1345, 0.1345))
-
-  # samples 1 percent of population to then remove
-  # may not be particularly different from original sampling (hard coded # vs %)
-  # sample_frac(data, 0.01, weight = population$odds_of_removal)
   
   # creates age group cohorts & randomly removes fraction based on cohort
   less_than_18 <- filter(data, current_age < 19)
@@ -116,17 +80,7 @@ one_year_population <- function(data) {
     enframe() %>% 
     select(value) %>% 
     rename(original_age = value) %>% 
-    mutate(current_age = original_age, years_incarcerated = 0) %>% 
-    mutate(odds_of_removal = case_when(current_age < 19 ~ 0.007,
-                                       current_age >= 19 & current_age < 30 ~ 0.0013,
-                                       current_age >= 30 & current_age < 40 ~ 0.0019,
-                                       current_age >= 40 & current_age < 50 ~ 0.0040,
-                                       current_age >= 50 & current_age < 60 ~ 0.0088,
-                                       current_age >= 60 & current_age < 70 ~ 0.0178,
-                                       current_age >= 70 & current_age < 80 ~ 0.0439,
-                                       current_age >= 80 & current_age < 90 ~ 0.1345,
-                                       current_age >= 90 ~ 0.1345))
-    #mutate(eligible_for_parole = FALSE)
+    mutate(current_age = original_age, years_incarcerated = 0)
   data <- rbind(data, incoming)
   
   # removes any observations with age greater than 100
@@ -215,19 +169,6 @@ actual %>%
   scale_color_discrete(name = "Age Group",
                        breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
 
-test_overall %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100, 
-         year = as.character(year)) %>% 
-  select(year, under_30, over_60) %>%
-  ggplot(data = ., mapping = aes(x = year, group = 1)) +
-  geom_line(mapping = aes(y = under_30, color = "under_30")) +
-  geom_line(mapping = aes(y = over_60, color = "over_60")) +
-  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Percent") +
-  scale_x_discrete(limits = c("19", "24", "29", "34", "39", "44", "49", "54", "59")) +
-  scale_color_discrete(name = "Age Group",
-                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
-
 actual_long <- actual %>% 
   select(year, AgeUnder20:Age90over) %>% 
   mutate(year = as.character(year)) %>% 
@@ -275,13 +216,13 @@ ggplot(data = test_overall_e, mapping = aes(x = year, y = median_age)) +
   labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
 
 test_overall_e %>% 
-  mutate(under_30 = `19 - 29` + `< 18`, 
-         over_60 = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
-  labs(title = "Number Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
 
@@ -315,29 +256,40 @@ one_year_parole <- function(data) {
   data$current_age <- data$current_age + 1
   data$years_incarcerated <- data$years_incarcerated + 1
   
-  # updates odds of removal
-  data$odds_of_removal <- case_when(data$current_age < 19 ~ 0.007,
-                                    data$current_age >= 19 & data$current_age < 30 ~ 0.0013,
-                                    data$current_age >= 30 & data$current_age < 40 ~ 0.0019,
-                                    data$current_age >= 40 & data$current_age < 50 ~ 0.0040,
-                                    data$current_age >= 50 & data$current_age < 60 ~ 0.0088,
-                                    data$current_age >= 60 & data$current_age < 70 ~ 0.0178,
-                                    data$current_age >= 70 & data$current_age < 80 ~ 0.0439,
-                                    data$current_age >= 80 & data$current_age < 90 ~ 0.1345,
-                                    data$current_age >= 90 ~ 0.1345)
+  # creates age group cohorts & randomly removes fraction based on cohort
+  less_than_18 <- filter(data, current_age < 19)
+  less_than_18 <- sample_frac(less_than_18, (1 - 0.0055))
   
-  # NOT TOTALLY FUNCTIONAL!!!
-  # if incarcerated for more than 20 years, odds of removal increases 10 percent
-  # checks if eligible for parole
-  # if eligibility has been checked and odds of removal has increased, does not increase again
-  if (data$years_incarcerated > 20 & !data$eligible_for_parole) {
-    data$odds_of_removal <- data$odds_of_removal + 0.1
-    data$eligible_for_parole <- TRUE
-  }
+  `19_to_29` <- filter(data, current_age >= 19 & current_age < 30)
+  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0022))
   
-  # randomly removes 1 percent
-  data <- data[-sample(x = 1:nrow(population), size = 0.01*nrow(population), 
-                       prob = population$odds_of_removal),]
+  `30_to_39` <- filter(data, current_age >= 30 & current_age < 40)
+  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0023))
+  
+  `40_to_49` <- filter(data, current_age >= 40 & current_age < 50)
+  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0025))
+  
+  `50_to_59` <- filter(data, current_age >= 50 & current_age < 60)
+  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0060))
+  
+  `60_to_69` <- filter(data, current_age >= 60 & current_age < 70)
+  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0162))
+  
+  `70_to_79` <- filter(data, current_age >= 70 & current_age < 80)
+  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0424))
+  
+  `80_to_89` <- filter(data, current_age >= 80 & current_age < 90)
+  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.0519))
+  
+  over_90 <- filter(data, current_age >= 90)
+  over_90 <- sample_frac(over_90, (1 - 0.1250))
+  
+  data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
+                                `60_to_69`,`70_to_79`, `80_to_89`, over_90))
+  
+  eligible <- sample_frac(filter(data, years_incarcerated >= 20), 0.9)
+  ineligible <- filter(data, years_incarcerated < 20)
+  data <- rbind(eligible, ineligible)
   
   # adds 1000 more
   incoming <- 
@@ -345,16 +297,7 @@ one_year_parole <- function(data) {
     enframe() %>% 
     select(value) %>% 
     rename(original_age = value) %>% 
-    mutate(current_age = original_age, years_incarcerated = 0, eligible_for_parole = FALSE) %>% 
-    mutate(odds_of_removal = case_when(current_age < 19 ~ 0.007,
-                                       current_age >= 19 & current_age < 30 ~ 0.0013,
-                                       current_age >= 30 & current_age < 40 ~ 0.0019,
-                                       current_age >= 40 & current_age < 50 ~ 0.0040,
-                                       current_age >= 50 & current_age < 60 ~ 0.0088,
-                                       current_age >= 60 & current_age < 70 ~ 0.0178,
-                                       current_age >= 70 & current_age < 80 ~ 0.0439,
-                                       current_age >= 80 & current_age < 90 ~ 0.1345,
-                                       current_age >= 90 ~ 0.1345))
+    mutate(current_age = original_age, years_incarcerated = 0, eligible_for_parole = FALSE)
   data <- rbind(data, incoming)
   
   # removes any observations with age greater than 100
