@@ -297,7 +297,7 @@ one_year_parole <- function(data) {
     enframe() %>% 
     select(value) %>% 
     rename(original_age = value) %>% 
-    mutate(current_age = original_age, years_incarcerated = 0, eligible_for_parole = FALSE)
+    mutate(current_age = original_age, years_incarcerated = 0)
   data <- rbind(data, incoming)
   
   # removes any observations with age greater than 100
@@ -307,12 +307,41 @@ one_year_parole <- function(data) {
 ```
 
 ```{r test_parole}
-parole_population <- population %>% 
-  mutate(eligible_for_parole = FALSE)
+parole_population <- population
 parole_overall <- overall
 
 for (i in 1:100) {
   parole_population <- one_year_parole(parole_population)
   parole_overall <- one_year_overall(parole_overall, parole_population)
 }
+```
+
+```{r test_parole_graphs}
+ggplot(data = parole_overall, mapping = aes(x = year, y = median_age)) +
+  geom_line() +
+  labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
+
+parole_overall %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
+  select(year, under_30, over_60) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = under_30, color = "under_30")) +
+  geom_line(mapping = aes(y = over_60, color = "over_60")) +
+  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
+
+parole_overall_long <- parole_overall %>% 
+  select(year, `< 18`:`90 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count")
+
+ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70 - 79", "80 - 89", "90 +"))
 ```
