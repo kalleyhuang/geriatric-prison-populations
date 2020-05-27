@@ -319,7 +319,7 @@ for (i in 1:100) {
 ```{r test_parole_graphs}
 ggplot(data = parole_overall, mapping = aes(x = year, y = median_age)) +
   geom_line() +
-  labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
+  labs(title = "Median Age Over Time with Parole", x = "Year", y = "Median Age")
 
 parole_overall %>% 
   mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
@@ -328,7 +328,7 @@ parole_overall %>%
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
-  labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
+  labs(title = "Percent Under 30 & Over 60 Over Time with Parole", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
 
@@ -339,7 +339,7 @@ parole_overall_long <- parole_overall %>%
 
 ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
   geom_bar(position = "stack", stat = "identity") +
-  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  labs(title = "Age Groups Over Time with Parole", x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101")) +
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
