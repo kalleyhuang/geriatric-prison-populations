@@ -214,14 +214,17 @@ national %>%
   filter(AGEYREND == "(5) 55+ years") %>%
   select(RPTYEAR, PERCENT) %>% 
   ggplot(data = ., mapping = aes(x = RPTYEAR, y = PERCENT)) +
-  geom_line()
+  geom_line() +
+  expand_limits(y = c(0, 25))
 
 test_overall %>% 
-  mutate(over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
-  select(year, over_60) %>% 
-  filter(year < 40) %>% 
-  ggplot(data = ., mapping = aes(x = year, y = over_60)) +
-  geom_line()
+  mutate(over_55 = (`50 - 59` / 2 + `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / 
+           total_population * 100) %>% 
+  select(year, over_55) %>% 
+  filter(year > 20 & year < 40) %>% 
+  ggplot(data = ., mapping = aes(x = year, y = over_55)) +
+  geom_line() +
+  expand_limits(y = c(0, 25))
 
 ggplot(data = national, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
   geom_col()
