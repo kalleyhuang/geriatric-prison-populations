@@ -210,6 +210,19 @@ national <- national_raw %>%
   na.omit() %>% 
   mutate(COUNT_THSNDS = n / 1000, PERCENT = n / sum(n) * 100)
 
+national %>% 
+  filter(AGEYREND == "(5) 55+ years") %>%
+  select(RPTYEAR, PERCENT) %>% 
+  ggplot(data = ., mapping = aes(x = RPTYEAR, y = PERCENT)) +
+  geom_line()
+
+test_overall %>% 
+  mutate(over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
+  select(year, over_60) %>% 
+  filter(year < 40) %>% 
+  ggplot(data = ., mapping = aes(x = year, y = over_60)) +
+  geom_line()
+
 ggplot(data = national, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
   geom_col()
 
