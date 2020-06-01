@@ -201,16 +201,14 @@ test_overall_long %>%
 ```
 
 ```{r bjs}
-national_raw <- da37021.0004 
-national <- national_raw %>% 
+national <- read.csv("bjs.csv")
+national %>% 
   select(RPTYEAR, ADMITYR, AGEADMIT, AGEYREND) %>% 
   mutate(TIMEINC = RPTYEAR - ADMITYR) %>% 
   group_by(RPTYEAR) %>% 
   count(AGEYREND) %>% 
   na.omit() %>% 
-  mutate(COUNT_THSNDS = n / 1000, PERCENT = n / sum(n) * 100)
-
-national %>% 
+  mutate(COUNT_THSNDS = n / 1000, PERCENT = n / sum(n) * 100) %>% 
   filter(AGEYREND == "(5) 55+ years") %>%
   select(RPTYEAR, PERCENT) %>% 
   ggplot(data = ., mapping = aes(x = RPTYEAR, y = PERCENT)) +
