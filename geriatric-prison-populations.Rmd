@@ -234,11 +234,25 @@ test_overall %>%
 
 ggplot(data = national, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
   geom_col() +
-  labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Count (in thousands)")
+  labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Count (in thousands)") +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("(1) 18-24 years", "(2) 25-34 years", "(3) 35-44 years",
+                                 "(4) 45-54 years", "(5) 55+ years"),
+                      labels = c("18 - 24", "25 - 34", "35 - 44", "45 - 54", "55 +"))
 
-ggplot(data = national, mapping = aes(x = RPTYEAR, y = PERCENT, fill = AGEYREND)) +
-  geom_bar(stat = "identity") +
-  labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Percent")
+test_overall %>% 
+  mutate(`18 - 24` = `< 18` + `19 - 29` / 2, `25 - 34` = `19 - 29` / 2 + `30 - 39` / 2,
+         `35 - 44` = `30 - 39` / 2 + `40 - 49` / 2, `45 - 54` = `40 - 49` / 2 + `50 - 59` / 2,
+         `55 +` = `50 - 59` / 2 + `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  select(year, `18 - 24`:`55 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
+  ggplot(data = ., mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_col() +
+  labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("19", "24", "29", "34", "39", "44", "49", "54", "59")) +
+  expand_limits(y = c(0, 50000)) +
+  scale_fill_discrete(name = "Age Group")
 ```
 
 ```{r test_equilibrium}
