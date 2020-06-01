@@ -156,9 +156,9 @@ bar_race <- test_overall %>%
   pivot_wider(names_from = "year", values_from = "count")
 ```
 
-```{r actual}
-actual <- read.csv("populations.csv")
-actual %>% 
+```{r nc}
+nc <- read.csv("nc.csv")
+nc %>% 
   mutate(Under30 = (AgeUnder20 + Age20to29) / PrisonPopulation * 100, 
          Over60 = (Age60to69 + Age70to79 + Age80to89 + Age90over) / PrisonPopulation * 100) %>% 
   select(year, PrisonPopulation, Under30, Over60) %>% 
@@ -169,12 +169,12 @@ actual %>%
   scale_color_discrete(name = "Age Group",
                        breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
 
-actual_long <- actual %>% 
+nc_long <- nc %>% 
   select(year, AgeUnder20:Age90over) %>% 
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
-actual_long %>% 
+nc_long %>% 
   filter(age_group != "AgeUnder20") %>% 
   ggplot(data = ., mapping = aes(x = year, y = count, fill = age_group)) +
   geom_col() +
@@ -201,15 +201,15 @@ test_overall_long %>%
 ```
 
 ```{r bjs}
-national <- read.csv("bjs.csv")
-national_wide <- national %>% 
+bjs <- read.csv("bjs.csv")
+bjs_wide <- bjs %>% 
   select(RPTYEAR, AGEYREND, n) %>% 
   mutate(RPTYEAR = as.character(RPTYEAR)) %>% 
   pivot_wider(names_from = "AGEYREND", values_from = "n") %>% 
   mutate(total_population = `(1) 18-24 years` + `(2) 25-34 years` + `(3) 35-44 years` + 
            `(4) 45-54 years` + `(5) 55+ years`)
 
-national_wide %>% 
+bjs_wide %>% 
   mutate(under_35 = (`(1) 18-24 years` + `(2) 25-34 years`) / total_population * 100, 
          over_55 = `(5) 55+ years` / total_population * 100) %>% 
   select(RPTYEAR, under_35, over_55) %>% 
@@ -218,7 +218,7 @@ national_wide %>%
   geom_line(mapping = aes(y = over_55, color = "over_55")) + 
   labs(title = "BJS Actual Percent Under 35 & Over 55 Over Time", x = "Year", y = "Percent") +
   scale_color_discrete(name = "Age Group", 
-                       breaks = c("under_35", "over_60"), labels = c("Under 35", "Over 55"))
+                       breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
 
 test_overall %>% 
   mutate(under_35 = (`30 - 39` / 2 + `19 - 29` + `< 18`) / total_population * 100,
@@ -232,7 +232,7 @@ test_overall %>%
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
 
-ggplot(data = national, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
+ggplot(data = bjs, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
   geom_col() +
   labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Count (in thousands)") +
   scale_fill_discrete(name = "Age Group",
@@ -251,7 +251,6 @@ test_overall %>%
   geom_col() +
   labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
   scale_x_discrete(limits = c("19", "24", "29", "34", "39", "44", "49", "54", "59")) +
-  expand_limits(y = c(0, 50000)) +
   scale_fill_discrete(name = "Age Group")
 ```
 
