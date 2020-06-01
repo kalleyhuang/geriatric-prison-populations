@@ -202,27 +202,43 @@ test_overall_long %>%
 
 ```{r bjs}
 national <- read.csv("bjs.csv")
-national %>% 
-  filter(AGEYREND == "(5) 55+ years") %>%
-  select(RPTYEAR, PERCENT) %>% 
-  ggplot(data = ., mapping = aes(x = RPTYEAR, y = PERCENT)) +
-  geom_line() +
-  expand_limits(y = c(0, 25))
+national_wide <- national %>% 
+  select(RPTYEAR, AGEYREND, n) %>% 
+  mutate(RPTYEAR = as.character(RPTYEAR)) %>% 
+  pivot_wider(names_from = "AGEYREND", values_from = "n") %>% 
+  mutate(total_population = `(1) 18-24 years` + `(2) 25-34 years` + `(3) 35-44 years` + 
+           `(4) 45-54 years` + `(5) 55+ years`)
+
+national_wide %>% 
+  mutate(under_35 = (`(1) 18-24 years` + `(2) 25-34 years`) / total_population * 100, 
+         over_55 = `(5) 55+ years` / total_population * 100) %>% 
+  select(RPTYEAR, under_35, over_55) %>% 
+  ggplot(data = ., mapping = aes(x = RPTYEAR, group = 1)) +
+  geom_line(mapping = aes(y = under_35, color = "under_35")) +
+  geom_line(mapping = aes(y = over_55, color = "over_55")) + 
+  labs(title = "BJS Actual Percent Under 35 & Over 55 Over Time", x = "Year", y = "Percent") +
+  scale_color_discrete(name = "Age Group", 
+                       breaks = c("under_35", "over_60"), labels = c("Under 35", "Over 55"))
 
 test_overall %>% 
-  mutate(over_55 = (`50 - 59` / 2 + `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / 
+  mutate(under_35 = (`30 - 39` / 2 + `19 - 29` + `< 18`) / total_population * 100,
+         over_55 = (`50 - 59` / 2 + `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / 
            total_population * 100) %>% 
-  select(year, over_55) %>% 
-  filter(year > 20 & year < 40) %>% 
-  ggplot(data = ., mapping = aes(x = year, y = over_55)) +
-  geom_line() +
-  expand_limits(y = c(0, 25))
+  select(year, under_35, over_55) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = under_35, color = "under_35")) +
+  geom_line(mapping = aes(y = over_55, color = "over_55")) +
+  labs(title = "Percent Under 35 & Over 55 Over Time", x = "Year", y = "Percent") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
 
 ggplot(data = national, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
-  geom_col()
+  geom_col() +
+  labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Count (in thousands)")
 
 ggplot(data = national, mapping = aes(x = RPTYEAR, y = PERCENT, fill = AGEYREND)) +
-  geom_bar(stat = "identity")
+  geom_bar(stat = "identity") +
+  labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Percent")
 ```
 
 ```{r test_equilibrium}
