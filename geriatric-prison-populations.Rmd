@@ -18,15 +18,6 @@ set.seed(12345)
 ```{r arguments}
 n_entering <- 1000
 mean_age <- 26
-less_than_18_mortality_rate <- 0.0055
-`19_to_29_mortality_rate` <- 0.0022
-`30_to_39_mortality_rate` <- 0.0023
-`40_to_49_mortality_rate` <- 0.0025
-`50_to_59_mortality_rate` <- 0.0060
-`60_to_69_mortality_rate` <- 0.0162
-`70_to_79_mortality_rate` <- 0.0424
-`80_to_89_mortality_rate` <- 0.0519
-over_90_mortality_rate <- 0.1250
 parole_eligibility <- 20
 parole_prob <- 0.9
 
@@ -68,31 +59,31 @@ one_year_population <- function(data) {
   
   # creates age group cohorts & randomly removes fraction based on cohort
   less_than_18 <- filter(data, current_age < 19)
-  less_than_18 <- sample_frac(less_than_18, (1 - less_than_18_mortality_rate))
+  less_than_18 <- sample_frac(less_than_18, (1 - 0.0055))
   
   `19_to_29` <- filter(data, current_age >= 19 & current_age < 30)
-  `19_to_29` <- sample_frac(`19_to_29`, (1 - `19_to_29_mortality_rate`))
+  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0022))
   
   `30_to_39` <- filter(data, current_age >= 30 & current_age < 40)
-  `30_to_39` <- sample_frac(`30_to_39`, (1 - `30_to_39_mortality_rate`))
+  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0023))
   
   `40_to_49` <- filter(data, current_age >= 40 & current_age < 50)
-  `40_to_49` <- sample_frac(`40_to_49`, (1 - `40_to_49_mortality_rate`))
+  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0025))
   
   `50_to_59` <- filter(data, current_age >= 50 & current_age < 60)
-  `50_to_59` <- sample_frac(`50_to_59`, (1 - `50_to_59_mortality_rate`))
+  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0060))
   
   `60_to_69` <- filter(data, current_age >= 60 & current_age < 70)
-  `60_to_69` <- sample_frac(`60_to_69`, (1 - `60_to_69_mortality_rate`))
+  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0162))
   
   `70_to_79` <- filter(data, current_age >= 70 & current_age < 80)
-  `70_to_79` <- sample_frac(`70_to_79`, (1 - `70_to_79_mortality_rate`))
+  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0424))
   
   `80_to_89` <- filter(data, current_age >= 80 & current_age < 90)
-  `80_to_89` <- sample_frac(`80_to_89`, (1 - `80_to_89_mortality_rate`))
+  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.0519))
   
   over_90 <- filter(data, current_age >= 90)
-  over_90 <- sample_frac(over_90, (1 - over_90_mortality_rate))
+  over_90 <- sample_frac(over_90, (1 - 0.1250))
   
   data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
                                 `60_to_69`,`70_to_79`, `80_to_89`, over_90))
@@ -353,31 +344,31 @@ one_year_parole <- function(data) {
   
   # creates age group cohorts & randomly removes fraction based on cohort
   less_than_18 <- filter(data, current_age < 19)
-  less_than_18 <- sample_frac(less_than_18, (1 - less_than_18_mortality_rate))
+  less_than_18 <- sample_frac(less_than_18, (1 - 0.0055))
   
   `19_to_29` <- filter(data, current_age >= 19 & current_age < 30)
-  `19_to_29` <- sample_frac(`19_to_29`, (1 - `19_to_29_mortality_rate`))
+  `19_to_29` <- sample_frac(`19_to_29`, (1 - 0.0022))
   
   `30_to_39` <- filter(data, current_age >= 30 & current_age < 40)
-  `30_to_39` <- sample_frac(`30_to_39`, (1 - `30_to_39_mortality_rate`))
+  `30_to_39` <- sample_frac(`30_to_39`, (1 - 0.0023))
   
   `40_to_49` <- filter(data, current_age >= 40 & current_age < 50)
-  `40_to_49` <- sample_frac(`40_to_49`, (1 - `40_to_49_mortality_rate`))
+  `40_to_49` <- sample_frac(`40_to_49`, (1 - 0.0025))
   
   `50_to_59` <- filter(data, current_age >= 50 & current_age < 60)
-  `50_to_59` <- sample_frac(`50_to_59`, (1 - `50_to_59_mortality_rate`))
+  `50_to_59` <- sample_frac(`50_to_59`, (1 - 0.0060))
   
   `60_to_69` <- filter(data, current_age >= 60 & current_age < 70)
-  `60_to_69` <- sample_frac(`60_to_69`, (1 - `60_to_69_mortality_rate`))
+  `60_to_69` <- sample_frac(`60_to_69`, (1 - 0.0162))
   
   `70_to_79` <- filter(data, current_age >= 70 & current_age < 80)
-  `70_to_79` <- sample_frac(`70_to_79`, (1 - `70_to_79_mortality_rate`))
+  `70_to_79` <- sample_frac(`70_to_79`, (1 - 0.0424))
   
   `80_to_89` <- filter(data, current_age >= 80 & current_age < 90)
-  `80_to_89` <- sample_frac(`80_to_89`, (1 - `80_to_89_mortality_rate`))
+  `80_to_89` <- sample_frac(`80_to_89`, (1 - 0.0519))
   
   over_90 <- filter(data, current_age >= 90)
-  over_90 <- sample_frac(over_90, (1 - over_90_mortality_rate))
+  over_90 <- sample_frac(over_90, (1 - 0.1250))
   
   data <- do.call("rbind", list(less_than_18, `19_to_29`, `30_to_39`, `40_to_49`, `50_to_59`, 
                                 `60_to_69`,`70_to_79`, `80_to_89`, over_90))
