@@ -16,29 +16,23 @@ set.seed(12345)
 ```
 
 ```{r arguments}
-n_entering <- 1000
-mean_age <- 26
+pop_n <- 1000
+pop_mean <- 26
+pop_sd <- 3
 parole_eligibility <- 20
 parole_prob <- 0.9
-
-simulation_base_alt
-simulation_parole_alt
-
-# 1000, 26, 20, 0.9
-# 52344, 52.48, 8.65, 37.12
-# 27536, 39.43, 16.68, 5.25
 ```
 
 ```{r normal_distribution}
 population <- 
-  rnorm(n = n_entering, mean = mean_age, sd = 3) %>% 
+  rnorm(n = pop_n, mean = pop_mean, sd = pop_sd) %>% 
   enframe() %>% 
   select(value) %>% 
   rename(original_age = value) %>% 
   mutate(current_age = original_age, years_incarcerated = 0)
 
 overall <-
-  tibble(year = 1, total_population = nrow(population), 
+  tibble(year = 1, total = nrow(population), 
          median_age = median(population$current_age)) %>% 
   mutate("< 18" = pull(count(filter(population, current_age < 19))),
          "19 - 29" = pull(count(filter(population, current_age >= 19 & current_age < 30))),
@@ -90,7 +84,7 @@ one_year_population <- function(data) {
   
   # adds 1000 more
   incoming <- 
-    rnorm(n = n_entering, mean = mean_age, sd = 3) %>% 
+    rnorm(n = pop_n, mean = pop_mean, sd = pop_sd) %>% 
     enframe() %>% 
     select(value) %>% 
     rename(original_age = value) %>% 
@@ -104,7 +98,7 @@ one_year_population <- function(data) {
 
 one_year_overall <- function(data, p) {
     incoming <-
-      tibble(year = last(data$year) + 1, total_population = nrow(p),
+      tibble(year = last(data$year) + 1, total = nrow(p),
              median_age = median(p$current_age)) %>% 
         mutate("< 18" = pull(count(filter(p, current_age < 19))),
                "19 - 29" = pull(count(filter(p, current_age >= 19 & current_age < 30))),
@@ -136,8 +130,8 @@ ggplot(data = no_parole_overall, mapping = aes(x = year, y = median_age)) +
   labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
 
 no_parole_overall %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
@@ -160,25 +154,21 @@ ggplot(data = no_parole_overall_long, mapping = aes(x = year, y = count, fill = 
                                  "70 - 79", "80 - 89", "90 +"))
 ```
 
-``` {r summary_stats}
+```{r summary_stats}
 simulation_base <- no_parole_overall %>% 
   filter(year == 100) %>%
-  mutate(`< 18` = `< 18` / total_population * 100, 
-         `19 - 29` = `19 - 29` / total_population * 100,
-         `30 - 39` = `30 - 39` / total_population * 100,
-         `40 - 49` = `40 - 49` / total_population * 100,
-         `50 - 59` = `50 - 59` / total_population * 100,
-         `60 - 69` = `60 - 69` / total_population * 100,
-         `70 - 79` = `70 - 79` / total_population * 100,
-         `80 - 89` = `80 - 89` / total_population * 100,
-         `90 +` = `90 +` / total_population * 100) %>% 
-  select(total_population:`90 +`)
+  mutate(`< 18` = `< 18` / total * 100, `19 - 29` = `19 - 29` / total * 100,
+         `30 - 39` = `30 - 39` / total * 100, `40 - 49` = `40 - 49` / total * 100,
+         `50 - 59` = `50 - 59` / total * 100, `60 - 69` = `60 - 69` / total * 100,
+         `70 - 79` = `70 - 79` / total * 100, `80 - 89` = `80 - 89` / total * 100,
+         `90 +` = `90 +` / total * 100) %>% 
+  select(total:`90 +`)
 
 simulation_base_alt <- no_parole_overall %>% 
   filter(year == 100) %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
-  select(total_population, median_age, under_30, over_60)
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
+  select(total, median_age, under_30, over_60)
 ```
 
 ```{r bar_race}
@@ -239,12 +229,12 @@ bjs_wide <- bjs %>%
   select(RPTYEAR, AGEYREND, n) %>% 
   mutate(RPTYEAR = as.character(RPTYEAR)) %>% 
   pivot_wider(names_from = "AGEYREND", values_from = "n") %>% 
-  mutate(total_population = `(1) 18-24 years` + `(2) 25-34 years` + `(3) 35-44 years` + 
+  mutate(total = `(1) 18-24 years` + `(2) 25-34 years` + `(3) 35-44 years` + 
            `(4) 45-54 years` + `(5) 55+ years`)
 
 bjs_wide %>% 
-  mutate(under_35 = (`(1) 18-24 years` + `(2) 25-34 years`) / total_population * 100, 
-         over_55 = `(5) 55+ years` / total_population * 100) %>% 
+  mutate(under_35 = (`(1) 18-24 years` + `(2) 25-34 years`) / total * 100, 
+         over_55 = `(5) 55+ years` / total * 100) %>% 
   select(RPTYEAR, under_35, over_55) %>% 
   ggplot(data = ., mapping = aes(x = RPTYEAR, group = 1)) +
   geom_line(mapping = aes(y = under_35, color = "under_35")) +
@@ -254,9 +244,9 @@ bjs_wide %>%
                        breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
 
 no_parole_overall %>% 
-  mutate(under_35 = (`30 - 39` / 2 + `19 - 29` + `< 18`) / total_population * 100,
+  mutate(under_35 = (`30 - 39` / 2 + `19 - 29` + `< 18`) / total * 100,
          over_55 = (`50 - 59` / 2 + `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / 
-           total_population * 100) %>% 
+           total * 100) %>% 
   select(year, under_35, over_55) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_35, color = "under_35")) +
@@ -302,8 +292,8 @@ ggplot(data = overall_e, mapping = aes(x = year, y = median_age)) +
   labs(title = "Median Age Over Time", x = "Year", y = "Median Age")
 
 overall_e %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
@@ -379,7 +369,7 @@ one_year_parole <- function(data) {
   
   # adds 1000 more
   incoming <- 
-    rnorm(n = n_entering, mean = mean_age, sd = 3) %>% 
+    rnorm(n = pop_n, mean = pop_mean, sd = pop_sd) %>% 
     enframe() %>% 
     select(value) %>% 
     rename(original_age = value) %>% 
@@ -392,7 +382,7 @@ one_year_parole <- function(data) {
 }
 ```
 
-```{r parole}
+```{r parole_iterate}
 parole_population <- population
 parole_overall <- overall
 
@@ -408,8 +398,8 @@ ggplot(data = parole_overall, mapping = aes(x = year, y = median_age)) +
   labs(title = "Median Age Over Time with Parole", x = "Year", y = "Median Age")
 
 parole_overall %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
@@ -435,20 +425,16 @@ ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age
 ``` {r parole_summary_stats}
 simulation_parole <- parole_overall %>% 
   filter(year == 100) %>%
-  mutate(`< 18` = `< 18` / total_population * 100, 
-         `19 - 29` = `19 - 29` / total_population * 100,
-         `30 - 39` = `30 - 39` / total_population * 100,
-         `40 - 49` = `40 - 49` / total_population * 100,
-         `50 - 59` = `50 - 59` / total_population * 100,
-         `60 - 69` = `60 - 69` / total_population * 100,
-         `70 - 79` = `70 - 79` / total_population * 100,
-         `80 - 89` = `80 - 89` / total_population * 100,
-         `90 +` = `90 +` / total_population * 100) %>% 
-  select(total_population:`90 +`)
+  mutate(`< 18` = `< 18` / total * 100, `19 - 29` = `19 - 29` / total * 100,
+         `30 - 39` = `30 - 39` / total * 100, `40 - 49` = `40 - 49` / total * 100,
+         `50 - 59` = `50 - 59` / total * 100, `60 - 69` = `60 - 69` / total * 100,
+         `70 - 79` = `70 - 79` / total * 100, `80 - 89` = `80 - 89` / total * 100,
+         `90 +` = `90 +` / total * 100) %>% 
+  select(total:`90 +`)
 
 simulation_parole_alt <- parole_overall %>% 
   filter(year == 100) %>% 
-  mutate(under_30 = (`19 - 29` + `< 18`) / total_population * 100, 
-         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total_population * 100) %>% 
-  select(total_population, median_age, under_30, over_60)
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
+  select(total, median_age, under_30, over_60)
 ```
