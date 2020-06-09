@@ -91,9 +91,9 @@ one_year_population <- function(data) {
     mutate(current_age = original_age, years_incarcerated = 0)
   data <- rbind(data, incoming)
   
-  # removes any observations with age greater than 100
+  # removes any observations with age less than 16 or greater than 100
   data <- data %>% 
-    filter(current_age < 100)
+    filter(current_age >= 16 & current_age < 100)
 }
 
 one_year_overall <- function(data, p) {
@@ -221,6 +221,20 @@ no_parole_overall_long %>%
   scale_fill_discrete(name = "Age Group",
                       breaks = c("19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +"))
+```
+
+```{r nc_summary_stats}
+actual_nc <- nc %>% 
+  filter(year == 2020) %>% 
+  mutate(AgeUnder20 = AgeUnder20 / PrisonPopulation * 100,
+         Age20to29 = Age20to29 / PrisonPopulation * 100, 
+         Age30to39 = Age30to39 / PrisonPopulation * 100, 
+         Age40to49 = Age40to49 / PrisonPopulation * 100, 
+         Age50to59 = Age50to59 / PrisonPopulation * 100, 
+         Age60to69 = Age60to69 / PrisonPopulation * 100, 
+         Age70to79 = Age70to79 / PrisonPopulation * 100, 
+         Age80to89 = Age80to89 / PrisonPopulation * 100, 
+         Age90over = Age90over / PrisonPopulation * 100)
 ```
 
 ```{r bjs}
@@ -376,9 +390,9 @@ one_year_parole <- function(data) {
     mutate(current_age = original_age, years_incarcerated = 0)
   data <- rbind(data, incoming)
   
-  # removes any observations with age greater than 100
+  # removes any observations with age less than 16 or greater than 100
   data <- data %>% 
-    filter(current_age < 100)
+    filter(current_age >= 16 & current_age < 100)
 }
 ```
 
@@ -437,4 +451,45 @@ simulation_parole_alt <- parole_overall %>%
   mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
          over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
   select(total, median_age, under_30, over_60)
+```
+
+```{r policy_iterate}
+policy_population <- parole_population
+policy_overall <- parole_overall
+
+for (i in 1:100) {
+  policy_population <- one_year_population(policy_population)
+  policy_overall <- one_year_overall(policy_overall, policy_population)
+}
+```
+
+```{r policy_graphs}
+ggplot(data = policy_overall, mapping = aes(x = year, y = median_age)) +
+  geom_line() +
+  labs(title = "Median Age Over Time if Parole is Eliminated", x = "Year", y = "Median Age")
+
+policy_overall %>% 
+  mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
+         over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
+  select(year, under_30, over_60) %>% 
+  ggplot(data = ., mapping = aes(x = year, group = 1)) +
+  geom_line(mapping = aes(y = under_30, color = "under_30")) +
+  geom_line(mapping = aes(y = over_60, color = "over_60")) +
+  labs(title = "Percent Under 30 & Over 60 if Parole is Eliminated", x = "Year", y = "Count") +
+  scale_color_discrete(name = "Age Group",
+                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
+
+policy_overall_long <- policy_overall %>% 
+  select(year, `< 18`:`90 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count")
+
+ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
+  geom_bar(position = "stack", stat = "identity") +
+  labs(title = "Age Groups Over Time if Parole is Eliminated", x = "Year", y = "Count") +
+  scale_x_discrete(limits = c("100", "105", "110", "115", "120", "125", 
+                              "130", "135", "140", "145", "150")) +
+  scale_fill_discrete(name = "Age Group",
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
+                                 "70 - 79", "80 - 89", "90 +"))
 ```
