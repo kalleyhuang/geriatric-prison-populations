@@ -128,7 +128,10 @@ for (i in 1:100) {
 ggplot(data = no_parole_overall, mapping = aes(x = year, y = median_age)) +
   geom_line() +
   labs(title = "Median Age Over Time Without Parole", x = "Year", y = "Median Age") +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 no_parole_overall %>% 
   mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
@@ -141,7 +144,10 @@ no_parole_overall %>%
        x = "Year", y = "Percent") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 no_parole_overall_long <- no_parole_overall %>% 
   select(year, `< 18`:`90 +`) %>% 
@@ -155,7 +161,10 @@ ggplot(data = no_parole_overall_long, mapping = aes(x = year, y = count, fill = 
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 ```
 
 ```{r summary_stats}
@@ -414,7 +423,10 @@ for (i in 1:100) {
 ggplot(data = parole_overall, mapping = aes(x = year, y = median_age)) +
   geom_line() +
   labs(title = "Median Age Over Time With Parole", x = "Year", y = "Median Age") +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 parole_overall %>% 
   mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
@@ -426,7 +438,10 @@ parole_overall %>%
   labs(title = "Percent Under 30 & Over 60 Over Time With Parole", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 parole_overall_long <- parole_overall %>% 
   select(year, `< 18`:`90 +`) %>% 
@@ -440,7 +455,10 @@ ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 ```
 
 ``` {r parole_summary_stats}
@@ -474,7 +492,10 @@ for (i in 1:100) {
 ggplot(data = policy_overall, mapping = aes(x = year, y = median_age)) +
   geom_line() +
   labs(title = "Median Age Over Time if Parole is Eliminated", x = "Year", y = "Median Age") +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 policy_overall %>% 
   mutate(under_30 = (`19 - 29` + `< 18`) / total * 100, 
@@ -486,7 +507,10 @@ policy_overall %>%
   labs(title = "Percent Under 30 & Over 60 if Parole is Eliminated", x = "Year", y = "Count") +
   scale_color_discrete(name = "Age Group",
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 
 policy_overall_long <- policy_overall %>% 
   select(year, `< 18`:`90 +`) %>% 
@@ -501,5 +525,8 @@ ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age
   scale_fill_discrete(name = "Age Group",
                       breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
                                  "70 - 79", "80 - 89", "90 +")) +
-  theme_classic()
+  theme_classic() +
+  theme(plot.title = element_text(size = 15),
+        axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
 ```
