@@ -162,7 +162,7 @@ no_parole_overall_long <- no_parole_overall %>%
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = no_parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_bar(position = "stack", stat = "identity") +
+  geom_col(position = position_stack(reverse = TRUE)) +
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
@@ -447,7 +447,7 @@ parole_overall_long <- parole_overall %>%
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_bar(position = "stack", stat = "identity") +
+  geom_col(position = position_stack(reverse = TRUE)) +
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
@@ -469,6 +469,29 @@ simulation_parole <- parole_overall %>%
   select(total:`90 +`)
 ```
 
+```{r equilibrium_comparison}
+parole_comparison <- parole_overall_long %>% 
+  filter(year == 100) %>% 
+  mutate(parole = TRUE) %>% 
+  select(age_group, count, parole)
+
+no_parole_comparison <- no_parole_overall_long %>% 
+  filter(year == 100) %>% 
+  mutate(parole = FALSE) %>% 
+  select(age_group, count, parole)
+
+comparison <- rbind(parole_comparison, no_parole_comparison)
+
+ggplot(data = comparison, mapping = aes(x = parole, y = count, fill = age_group)) +
+  geom_col(position = position_stack(reverse = TRUE)) +
+  labs(x = "Parole", y = "Count") +
+  scale_x_discrete(limits = c(TRUE, FALSE)) +
+  scale_fill_discrete(name = "Age Group") +
+  theme_classic() +
+  theme(axis.text.x = element_text(color = "#000000", size = 10),
+        axis.text.y = element_text(color = "#000000", size = 10))
+```
+
 ```{r policy_iterate}
 policy_population <- parole_population
 policy_overall <- parole_overall
@@ -480,7 +503,7 @@ for (i in 1:100) {
 ```
 
 ```{r policy_graphs}
-ggplot(data = policy_overall, mapping = aes(x = year, y = median_age)) +
+ggplot(data = policy_overall) +
   geom_line() +
   labs(x = "Year", y = "Median Age") +
   theme_classic() +
@@ -492,11 +515,11 @@ policy_overall %>%
          over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>% 
   select(year, under_30, over_60) %>% 
   ggplot(data = ., mapping = aes(x = year, group = 1)) +
-  geom_line(mapping = aes(y = under_30, color = "under_30")) +
-  geom_line(mapping = aes(y = over_60, color = "over_60")) +
+  geom_line(mapping = aes(y = under_30, linetype = "dashed")) +
+  geom_line(mapping = aes(y = over_60, linetype = "solid")) +
   labs(x = "Year", y = "Count") +
-  scale_color_discrete(name = "Age Group",
-                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
+  scale_linetype_manual(name = "Age Group",
+                        values = c("dashed", "solid"), labels = c("Under 30", "Over 60")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
         axis.text.y = element_text(color = "#000000", size = 10))
@@ -507,7 +530,7 @@ policy_overall_long <- policy_overall %>%
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_bar(position = "stack", stat = "identity") +
+  geom_col(position = position_stack(reverse = TRUE)) +
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("100", "105", "110", "115", "120", "125", 
                               "130", "135", "140", "145", "150")) +
