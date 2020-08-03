@@ -162,7 +162,7 @@ no_parole_overall_long <- no_parole_overall %>%
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = no_parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_col(position = position_stack(reverse = TRUE)) +
+  geom_bar(stat = "identity") +
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
@@ -447,7 +447,7 @@ parole_overall_long <- parole_overall %>%
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_col(position = position_stack(reverse = TRUE)) +
+  geom_bar(stat = "identity") +
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
@@ -470,12 +470,22 @@ simulation_parole <- parole_overall %>%
 ```
 
 ```{r equilibrium_comparison}
-parole_comparison <- parole_overall_long %>% 
+parole_comparison <- parole_overall %>% 
+  mutate(`< 30` = `19 - 29` + `< 18`, `30 - 60` = `30 - 39` + `40 - 49` + `50 - 59`,
+         `60 +` = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  select(year, `< 30`, `30 - 60`, `60 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
   filter(year == 100) %>% 
   mutate(parole = TRUE) %>% 
   select(age_group, count, parole)
 
-no_parole_comparison <- no_parole_overall_long %>% 
+no_parole_comparison <- no_parole_overall %>% 
+  mutate(`< 30` = `19 - 29` + `< 18`, `30 - 60` = `30 - 39` + `40 - 49` + `50 - 59`,
+         `60 +` = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  select(year, `< 30`, `30 - 60`, `60 +`) %>% 
+  mutate(year = as.character(year)) %>% 
+  pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
   filter(year == 100) %>% 
   mutate(parole = FALSE) %>% 
   select(age_group, count, parole)
@@ -483,13 +493,13 @@ no_parole_comparison <- no_parole_overall_long %>%
 comparison <- rbind(parole_comparison, no_parole_comparison)
 
 ggplot(data = comparison, mapping = aes(x = parole, y = count, fill = age_group)) +
-  geom_col(position = position_stack(reverse = TRUE)) +
-  labs(x = "Parole", y = "Count") +
-  scale_x_discrete(limits = c(TRUE, FALSE)) +
-  scale_fill_discrete(name = "Age Group") +
+  geom_col() +
+  labs(x = "Parole", y = "Count", fill = "Age Group") +
+  scale_x_discrete(limits = c(TRUE, FALSE), labels = c("True", "False")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
-        axis.text.y = element_text(color = "#000000", size = 10))
+        axis.text.y = element_text(color = "#000000", size = 10)) +
+  scale_fill_grey()
 ```
 
 ```{r policy_iterate}
@@ -504,7 +514,7 @@ for (i in 1:100) {
 
 ```{r policy_graphs}
 ggplot(data = policy_overall) +
-  geom_line() +
+  geom_line(mapping = aes(x = year, y = median_age)) +
   labs(x = "Year", y = "Median Age") +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
@@ -525,19 +535,19 @@ policy_overall %>%
         axis.text.y = element_text(color = "#000000", size = 10))
 
 policy_overall_long <- policy_overall %>% 
-  select(year, `< 18`:`90 +`) %>% 
+  mutate(`< 30` = `19 - 29` + `< 18`, `30 - 60` = `30 - 39` + `40 - 49` + `50 - 59`,
+         `60 +` = `60 - 69` + `70 - 79` + `80 - 89` + `90 +`) %>% 
+  select(year, `< 30`, `30 - 60`, `60 +`) %>% 
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count")
 
 ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
-  geom_col(position = position_stack(reverse = TRUE)) +
-  labs(x = "Year", y = "Count") +
+  geom_col() +
+  labs(x = "Year", y = "Count", fill = "Age Group") +
   scale_x_discrete(limits = c("100", "105", "110", "115", "120", "125", 
                               "130", "135", "140", "145", "150")) +
-  scale_fill_discrete(name = "Age Group",
-                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70 - 79", "80 - 89", "90 +")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
-        axis.text.y = element_text(color = "#000000", size = 10))
+        axis.text.y = element_text(color = "#000000", size = 10)) +
+  scale_fill_grey()
 ```
