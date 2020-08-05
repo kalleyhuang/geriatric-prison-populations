@@ -552,3 +552,10 @@ ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age
         axis.text.y = element_text(color = "#000000", size = 10)) +
   scale_fill_grey()
 ```
+
+```{r policy_summary_stats}
+simulation_policy <- policy_overall %>% 
+  filter(year > 100) %>%
+  mutate(over_60 = (`60 - 69` + `70 - 79` + `80 - 89` + `90 +`) / total * 100) %>%
+  select(year, total, median_age, over_60)
+```
