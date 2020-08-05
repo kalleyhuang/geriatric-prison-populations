@@ -19,7 +19,7 @@ set.seed(12345)
 pop_n <- 1000
 pop_mean <- 26
 pop_sd <- 3
-parole_eligibility <- 20
+parole_eligibility <- 25
 parole_prob <- 0.9
 ```
 
