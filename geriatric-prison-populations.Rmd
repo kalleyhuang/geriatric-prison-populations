@@ -35,8 +35,7 @@ population <-
 
 # stores median & number of people in age groups
 overall <-
-  tibble(year = 1, total = nrow(population), 
-         median_age = median(population$current_age)) %>% 
+  tibble(year = 1, total = nrow(population), median_age = median(population$current_age)) %>% 
   mutate("< 18" = pull(count(filter(population, current_age < 19))),
          "19 - 29" = pull(count(filter(population, current_age >= 19 & current_age < 30))),
          "30 - 39" = pull(count(filter(population, current_age >= 30 & current_age < 40))),
@@ -102,8 +101,7 @@ one_year_population <- function(data) {
 
 one_year_overall <- function(data, p) {
     incoming <-
-      tibble(year = last(data$year) + 1, total = nrow(p),
-             median_age = median(p$current_age)) %>% 
+      tibble(year = last(data$year) + 1, total = nrow(p), median_age = median(p$current_age)) %>% 
         mutate("< 18" = pull(count(filter(p, current_age < 19))),
                "19 - 29" = pull(count(filter(p, current_age >= 19 & current_age < 30))),
                "30 - 39" = pull(count(filter(p, current_age >= 30 & current_age < 40))),
@@ -220,7 +218,7 @@ no_parole_overall %>%
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
   labs(x = "Year", y = "Percent") +
-  scale_color_discrete(name = "Age Group",
+  scale_color_discrete(name = "Age Group", 
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
@@ -236,8 +234,7 @@ ggplot(data = no_parole_overall_long, mapping = aes(x = year, y = count, fill = 
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70 - 79", "80 - 89", "90 +")) +
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79", "80 - 89", "90 +")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
         axis.text.y = element_text(color = "#000000", size = 10))
@@ -271,7 +268,7 @@ parole_overall %>%
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
   labs(x = "Year", y = "Count") +
-  scale_color_discrete(name = "Age Group",
+  scale_color_discrete(name = "Age Group", 
                        breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
@@ -287,8 +284,7 @@ ggplot(data = parole_overall_long, mapping = aes(x = year, y = count, fill = age
   labs(x = "Year", y = "Count") +
   scale_x_discrete(limits = c("1", "20", "40", "60", "80", "100")) +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70 - 79", "80 - 89", "90 +")) +
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79", "80 - 89", "90 +")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
         axis.text.y = element_text(color = "#000000", size = 10))
@@ -323,8 +319,7 @@ policy_overall %>%
   geom_line(mapping = aes(y = under_30, linetype = "dashed")) +
   geom_line(mapping = aes(y = over_60, linetype = "solid")) +
   labs(x = "Year", y = "Count") +
-  scale_linetype_manual(name = "Age Group",
-                        values = c("dashed", "solid"), labels = c("Under 30", "Over 60")) +
+  scale_linetype_manual(name = "Age Group", values = c("dashed", "solid"), labels = c("Under 30", "Over 60")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
         axis.text.y = element_text(color = "#000000", size = 10))
@@ -339,8 +334,7 @@ policy_overall_long <- policy_overall %>%
 ggplot(data = policy_overall_long, mapping = aes(x = year, y = count, fill = age_group)) +
   geom_col() +
   labs(x = "Year", y = "Count", fill = "Age Group") +
-  scale_x_discrete(limits = c("100", "105", "110", "115", "120", "125", 
-                              "130", "135", "140", "145", "150")) +
+  scale_x_discrete(limits = c("100", "105", "110", "115", "120", "125", "130", "135", "140", "145", "150")) +
   theme_classic() +
   theme(axis.text.x = element_text(color = "#000000", size = 10),
         axis.text.y = element_text(color = "#000000", size = 10)) +
@@ -377,25 +371,21 @@ overall_e %>%
   geom_line(mapping = aes(y = under_30, color = "under_30")) +
   geom_line(mapping = aes(y = over_60, color = "over_60")) +
   labs(title = "Percent Under 30 & Over 60 Over Time", x = "Year", y = "Count") +
-  scale_color_discrete(name = "Age Group",
-                       breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
+  scale_color_discrete(name = "Age Group", breaks = c("under_30", "over_60"), labels = c("Under 30", "Over 60"))
 
 overall_e_long <- overall_e %>% 
   select(year, `< 18`:`90 +`) %>% 
   mutate(year = as.character(year)) %>% 
   pivot_longer(-year, names_to = "age_group", values_to = "count") %>% 
-  filter(year == "1" | year == "21" | year == "41" | year == "61" | year == "81" | 
-           year == "101" | year == "121" | year == "141" | year == "161" | year == "181" |
-           year == "201")
+  filter(year == "1" | year == "21" | year == "41" | year == "61" | year == "81" | year == "101" | 
+           year == "121" | year == "141" | year == "161" | year == "181" | year == "201")
 
 ggplot(data = overall_e_long, mapping = aes(x = year, y = count, fill = age_group)) +
   geom_bar(position = "stack", stat = "identity") +
   labs(title = "Age Groups Over Time", x = "Year", y = "Count") +
-  scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101", "121", "141", "161", "181", 
-                              "201")) +
+  scale_x_discrete(limits = c("1", "21", "41", "61", "81", "101", "121", "141", "161", "181", "201")) +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70 - 79", "80 - 89", "90 +"))
+                      breaks = c("< 18", "19 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79", "80 - 89", "90 +"))
 ```
 
 ```{r equilibrium_comparison}
@@ -450,8 +440,7 @@ nc %>%
   geom_line(mapping = aes(y = Under30, color = "Under30")) +
   geom_line(mapping = aes(y = Over60, color = "Over60")) +
   labs(title = "Actual Percent Under 30 & Over 60 Over Time", x = "Year", y = "Percent") +
-  scale_color_discrete(name = "Age Group",
-                       breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
+  scale_color_discrete(name = "Age Group", breaks = c("Under30", "Over60"), labels = c("Under 30", "Over 60"))
 
 nc_long <- nc %>% 
   select(year, AgeUnder20:Age90over) %>% 
@@ -463,14 +452,11 @@ nc_long %>%
   ggplot(data = ., mapping = aes(x = year, y = count, fill = age_group)) +
   geom_col() +
   labs(title = "Actual Age Groups Over Time", x = "Year", y = "Count") +
-  scale_x_discrete(limits = c("1979", "1984", "1989", "1994", "1999", "2004", "2009", "2014", 
-                              "2020")) +
+  scale_x_discrete(limits = c("1979", "1984", "1989", "1994", "1999", "2004", "2009", "2014", "2020")) +
   expand_limits(y = c(0, 50000)) +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("Age20to29", "Age30to39", "Age40to49", "Age50to59", 
-                                 "Age60to69", "Age70to79", "Age80to89", "Age90over"),
-                      labels = c("20 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69",
-                                 "70 - 79", "80 - 89", "90 +"))
+                      breaks = c("Age20to29", "Age30to39", "Age40to49", "Age50to59", "Age60to69", "Age70to79", "Age80to89", "Age90over"),
+                      labels = c("20 - 29", "30 - 39", "40 - 49", "50 - 59", "60 - 69", "70 - 79", "80 - 89", "90 +"))
 ```
 
 ```{r nc_summary_stats}
@@ -504,14 +490,12 @@ bjs_wide %>%
   geom_line(mapping = aes(y = under_35, color = "under_35")) +
   geom_line(mapping = aes(y = over_55, color = "over_55")) + 
   labs(title = "BJS Actual Percent Under 35 & Over 55 Over Time", x = "Year", y = "Percent") +
-  scale_color_discrete(name = "Age Group", 
-                       breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
+  scale_color_discrete(name = "Age Group", breaks = c("under_35", "over_55"), labels = c("Under 35", "Over 55"))
 
 ggplot(data = bjs, mapping = aes(x = RPTYEAR, y = COUNT_THSNDS, fill = AGEYREND)) +
   geom_col() +
   labs(title = "BJS Actual Age Groups Over Time", x = "Year", y = "Count (in thousands)") +
   scale_fill_discrete(name = "Age Group",
-                      breaks = c("(1) 18-24 years", "(2) 25-34 years", "(3) 35-44 years",
-                                 "(4) 45-54 years", "(5) 55+ years"),
+                      breaks = c("(1) 18-24 years", "(2) 25-34 years", "(3) 35-44 years", "(4) 45-54 years", "(5) 55+ years"),
                       labels = c("18 - 24", "25 - 34", "35 - 44", "45 - 54", "55 +"))
 ```
