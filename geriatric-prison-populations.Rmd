@@ -3,10 +3,6 @@ title: "Geriatric Prison Populations"
 output: html_document
 ---
 
-```{r include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ```{r libraries}
 library(tidyverse)
 ```
