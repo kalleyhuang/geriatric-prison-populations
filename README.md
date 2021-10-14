@@ -2,4 +2,6 @@
 
 **Abstract**: During the 1980s and 1990s, US policymakers adopted draconian criminal justice polices including widespread use of extremely long sentences, including life without parole. The country is now coming to face the consequences of these policies: a new class of geriatric prisoners posing little threat to public safety as they age into their seventies and beyond. Using a perspective drawn from bounded rationality, framing, and agenda-setting, we recount how policymakers adopted these policies, with key blind spots relating to obvious consequences of these harsh laws. We show how political leaders can over-respond to a perceived public policy crisis, particularly when powerful frames of race, fear, and dehumanization come to dominate the public discourse. We show how these trends are radically changing the demographics and needs of prison populations through a chronological review, mathematical simulation of the prison population, review of statistics about prison population, and personal stories illustrating these themes drawn from inside prison.
 
-Find paper [here](https://fbaum.unc.edu/articles/ThrowingAwayTheKey.pdf). Forthcoming in _Perspectives on Politics_.
+Find paper [here](https://fbaum.unc.edu/articles/ThrowingAwayTheKey.pdf). Published in _Perspectives on Politics_.
+
+Read our analysis for The Washington Post's Monkey Cage [here](https://www.washingtonpost.com/politics/2021/08/26/thousands-prisoners-have-died-covid-because-tough-crime-era-theres-still-worse-come/).
